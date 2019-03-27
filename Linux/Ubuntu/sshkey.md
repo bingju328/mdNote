@@ -1,4 +1,4 @@
-ubuntu A 登录 B
+ubuntu A 登录 B，C
 A上
 1，
 ssh-keygen -t rsa  # 生成RSA加密的密钥

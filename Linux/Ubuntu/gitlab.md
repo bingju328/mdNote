@@ -1,3 +1,4 @@
+
 https://about.gitlab.com/install/#ubuntu
 1,安装并设置依赖
 ```
@@ -9,7 +10,7 @@ sudo apt-get install -y curl openssh-server ca-certificates
 curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
 sudo apt-get install gitlab-ce
 ```
-如果你能通过以上方式安装，恭喜你的网络很好，但一般因为大墙的存在这个方式很多时候并不能成功，所以我们要通过手动下载包的方式进行安装。
+我是直接用下面的方式安装的
 
 ```
 wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/trusty/gitlab-ce_10.0.0-ce.0_amd64.deb/download.deb
@@ -68,3 +69,38 @@ ssh-keygen -t rsa -C 'xxxx@163.com'
 ```
 一路回车
 然后在用户目录下.ssh 文件下面生成两个文件 id_rsa id_rsa.pub
+id_rsa是私钥，id_rsa.pub是公钥
+我们需要把id_rsa.pub文件中的内容拷贝一下
+进入你自己的github，进入Settings->SSHand GPG keys->New SSH key,然后在Key那栏下面将id_rsa.pub粘贴进去就可以了，最后点击 Add SSH key按钮添加
+
+本地配置多个ssh key
+大多数时候，我们的机器上会有很多的git host,比如公司gitlab、github、oschina等，那我们就需要在本地配置多个ssh key，使得不同的host能使用不同的ssh key ,做法如下（以公司gitlab和github为例）：
+
+为公司生成一对秘钥ssh key
+
+ssh-keygen -t rsa -C 'yourEmail@xx.com' -f ~/.ssh/gitlab-rsa
+为github生成一对秘钥ssh key
+
+ssh-keygen -t rsa -C 'yourEmail2@xx.com' -f ~/.ssh/github-rsa
+在~/.ssh目录下新建名称为config的文件（无后缀名）。用于配置多个不同的host使用不同的ssh key，内容如下：
+
+# gitlab
+Host gitlab.com
+    HostName gitlab.com
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/gitlab_id-rsa
+# github
+Host github.com
+    HostName github.com
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/github_id-rsa
+  ​
+# 配置文件参数
+# Host : Host可以看作是一个你要识别的模式，对识别的模式，进行配置对应的的主机名和ssh文件
+# HostName : 要登录主机的主机名
+# User : 登录名
+# IdentityFile : 指明上面User对应的identityFile路径
+按照上面的步骤分别往gitlab和github上添加生成的公钥gitlab_id-rsa.pub和github_id-rsa.pub
+OK，大功告成，再次执行git命令验证是不是已经不需要再次验证权限了。
+
+再次查看~/..ssh目录下的文件,会有gitlab_id-rsa、gitlab_id-rsa.pub和github_id-rsa、github_id-rsa.pub四个文件
