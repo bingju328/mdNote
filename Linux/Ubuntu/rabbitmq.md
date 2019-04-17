@@ -120,6 +120,123 @@ rabbitmq status Error: unable to connect to node rabbit@bingju203: nodedown
 var/lib/rabbitmqctl/.erlang.cookie 和 ~/.erlang.cookie不一样
 
 
+以上是普通模式的集群
+普通模式：默认的集群模式，以两个节点（rabbit01、rabbit02）为例来进行说明。对于 Queue 来说，消息实体只存在于其中一个节点 rabbit01（或者 rabbit02），rabbit01 和 rabbit02 两个节点仅有相同的元数据，即队列的结构。当消息进入 rabbit01 节点的 Queue 后，consumer 从 rabbit02 节点消费时，RabbitMQ 会临时在 rabbit01、rabbit02 间进行消息传输，把 A 中的消息实体取出并经过 B 发送给 consumer。所以 consumer 应尽量连接每一个节点，从中取消息。即对于同一个逻辑队列，要在多个节点建立物理 Queue。否则无论 consumer 连 rabbit01 或 rabbit02，出口总在 rabbit01，会产生瓶颈。当 rabbit01 节点故障后，rabbit02 节点无法取到 rabbit01 节点中还未消费的消息实体。如果做了消息持久化，那么得等 rabbit01 节点恢复，然后才可被消费；如果没有持久化的话，就会产生消息丢失的现象。
+镜像模式：将需要消费的队列变为镜像队列，存在于多个节点，这样就可以实现 RabbitMQ 的 HA 高可用性。作用就是消息实体会主动在镜像节点之间实现同步，而不是像普通模式那样，在 consumer 消费数据时临时读取。缺点就是，集群内部的同步通讯会占用大量的网络带宽。
+
+###### 配置镜像队列
+沿用以上环境，现在我们把名为“hello”的队列设置为同步给所有节点
+#rabbitmqctl set_policy  ha-all “hello” ‘{“ha-mode”:”all”}’
+# rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all"}' //意思表示以ha.开头的queue都会复制到各个节点 ["^"匹配所有]
+
+ha-all 是同步模式，指同步给所有节点，还有另外两种模式ha-exactly表示在指定个数的节点上进行镜像，节点的个数由ha-params指定，ha-nodes表示在指定的节点上进行镜像，节点名称通过ha-params指定；
+
+hello 是同步的队列名，可以用正则表达式匹配；
+
+{“ha-mode”:”all”} 表示同步给所有，同步模式的不同，此参数也不同。
+
+执行上面命令后，可以在web管理界面查看queue 页面，里面hello队列的node节点后会出现+2标签，表示有2个从节点，而主节点则是当前显示的node（xf7021是测试用的名字，按4-2应该为rabbitmq（1-3））。
+
+
+Haproxy负载代理
+　　利用haproxy做负载均衡
+　　在192.168.1.1和192.168.1.2节点上
+　　安装haproxy
+　　# yum install haproxy
+
+　　vi /etc/haproxy/haproxy.cfg 之后添加：
+```
+listen rabbitmq_local_cluster 0.0.0.0:5672
+　　#配置TCP模式
+　　mode tcp
+　　option tcplog
+　　#简单的轮询
+　　balance roundrobin
+　　#rabbitmq集群节点配置
+　　server rabbit1 192.168.0.1:5672 check inter 5000 rise 2 fall 2
+　　server rabbit2 192.168.0.2:5672 check inter 5000 rise 2 fall 2
+　　server rabbit3 192.168.0.3:5672 check inter 5000 rise 2 fall 2
+
+#配置haproxy web监控，查看统计信息
+listen private_monitoring :8100
+　　mode http
+　　option httplog
+　　stats enable
+　　#设置haproxy监控地址为http://localhost:8100/stats
+　　stats uri /stats
+　　stats refresh 30s
+　　#添加用户名密码认证
+　　stats auth admin:1234
+```
+#启动
+　　# haproxy -f haproxy.cfg
+　　#重启动
+　　# service haproxy restart
+
+Keepalived安装
+　　利用keepalived做主备，避免单点问题，实现高可用
+在192.168.1.1和192.168.1.2节点上安装最新版keepalived
+
+　　192.168.1.1（主）修改keepalived.conf为：Primary配置：
+```
+vrrp_script chk_haproxy {
+    script "pidof haproxy"
+    interval 2
+}
+vrrp_instance VI_1 {
+    interface ens192
+    state MASTER
+    priority 200
+    virtual_router_id 10
+    unicast_src_ip 192.168.1.1
+    unicast_peer {
+        192.168.1.2
+    }
+    authentication {
+        auth_type PASS
+        auth_pass password
+    }
+    virtual_ipaddress {
+        192.168.1.10 //虚拟ip，对外提供服务
+    }
+    track_script {
+        chk_haproxy
+    }
+    notify_master /loadbtify_master.sh
+}
+```
+192.168.1.2（备）修改keepalived.conf为：Secondary配置：
+```
+vrrp_script chk_haproxy {
+    script "pidof haproxy"
+    interval 2
+}
+vrrp_instance VI_1 {
+    interface ens192
+    state BACKUP
+    priority 100
+    virtual_router_id 10
+    unicast_src_ip 192.168.1.2
+    unicast_peer {
+        192.168.1.1
+    }
+    authentication {
+        auth_type PASS
+        auth_pass password
+    }
+    virtual_ipaddress {
+        192.168.1.10
+    }
+    track_script {
+        chk_haproxy
+    }
+    notify_master /loadbtify_master.sh
+}
+```
+启动keepalived即可，192.168.1.10是对外提供的统一地址。
+
+通过192.168.1.10:5672就可以访问rabbitmq服务。
+
 
 
 用户角色
