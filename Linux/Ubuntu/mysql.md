@@ -108,3 +108,100 @@ REVOKE SELECT ON *.* FROM 'pig'@'%';
 五.删除用户
 命令:
 DROP USER 'username'@'host';
+
+
+
+
+[client]
+port=3306
+[mysql]
+no-beep
+default-character-set=utf8
+[mysqld]
+server-id=2
+relay-log-index=slave-relay-bin.index
+relay-log=slave-relay-bin
+slave-skip-errors=all #跳过所有错误
+skip-name-resolve
+
+port=3306
+datadir="D:/mysql-slave/data"
+character-set-server=utf8
+default-storage-engine=INNODB
+sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+
+log-output=FILE
+general-log=0
+general_log_file="WINDOWS-8E8V2OD.log"
+slow-query-log=1
+slow_query_log_file="WINDOWS-8E8V2OD-slow.log"
+long_query_time=10
+
+# Binary Logging.
+# log-bin
+
+# Error Logging.
+log-error="WINDOWS-8E8V2OD.err"
+
+
+# 整个数据库最大连接（用户）数
+max_connections=1000
+# 每个客户端连接最大的错误允许数量
+max_connect_errors=100
+# 表描述符缓存大小，可减少文件打开/关闭次数
+table_open_cache=2000
+# 服务所能处理的请求包的最大大小以及服务所能处理的最大的请求大小(当与大的BLOB字段一起工作时相当必要)  
+# 每个连接独立的大小.大小动态增加
+max_allowed_packet=64M
+# 在排序发生时由每个线程分配
+sort_buffer_size=8M
+# 当全联合发生时,在每个线程中分配
+join_buffer_size=8M
+# cache中保留多少线程用于重用
+thread_cache_size=128
+# 此允许应用程序给予线程系统一个提示在同一时间给予渴望被运行的线程的数量.
+thread_concurrency=64
+# 查询缓存
+query_cache_size=128M
+# 只有小于此设定值的结果才会被缓冲  
+# 此设置用来保护查询缓冲,防止一个极大的结果集将其他所有的查询结果都覆盖
+query_cache_limit=2M
+# InnoDB使用一个缓冲池来保存索引和原始数据
+# 这里你设置越大,你在存取表里面数据时所需要的磁盘I/O越少.  
+# 在一个独立使用的数据库服务器上,你可以设置这个变量到服务器物理内存大小的80%  
+# 不要设置过大,否则,由于物理内存的竞争可能导致操作系统的换页颠簸.  
+innodb_buffer_pool_size=1G
+# 用来同步IO操作的IO线程的数量
+# 此值在Unix下被硬编码为4,但是在Windows磁盘I/O可能在一个大数值下表现的更好.
+innodb_read_io_threads=16
+innodb_write_io_threads=16
+# 在InnoDb核心内的允许线程数量.  
+# 最优值依赖于应用程序,硬件以及操作系统的调度方式.  
+# 过高的值可能导致线程的互斥颠簸.
+innodb_thread_concurrency=9
+
+# 0代表日志只大约每秒写入日志文件并且日志文件刷新到磁盘.  
+# 1 ,InnoDB会在每次提交后刷新(fsync)事务日志到磁盘上
+# 2代表日志写入日志文件在每次提交后,但是日志文件只有大约每秒才会刷新到磁盘上
+innodb_flush_log_at_trx_commit=2
+# 用来缓冲日志数据的缓冲区的大小.  
+innodb_log_buffer_size=16M
+# 在日志组中每个日志文件的大小.  
+innodb_log_file_size=48M
+# 在日志组中的文件总数.
+innodb_log_files_in_group=3
+# 在被回滚前,一个InnoDB的事务应该等待一个锁被批准多久.  
+# InnoDB在其拥有的锁表中自动检测事务死锁并且回滚事务.  
+# 如果你使用 LOCK TABLES 指令, 或者在同样事务中使用除了InnoDB以外的其他事务安全的存储引擎  
+# 那么一个死锁可能发生而InnoDB无法注意到.  
+# 这种情况下这个timeout值对于解决这种问题就非常有帮助.
+innodb_lock_wait_timeout=30
+# 开启定时
+event_scheduler=ON
+
+查看Mysql存储引擎情况：
+mysql>show engines;
+查看当前变量
+mysql> show variables like "%innodb%";
+
+show global VARIABLES like 'innodb_flush_log_at_trx_commit'
