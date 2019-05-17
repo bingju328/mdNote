@@ -1,42 +1,38 @@
-
-https://about.gitlab.com/install/#ubuntu
+<https://about.gitlab.com/install/#ubuntu>
 1,安装并设置依赖
-```
-sudo apt-get update
-sudo apt-get install -y curl openssh-server ca-certificates
-```
+
+    sudo apt-get update
+    sudo apt-get install -y curl openssh-server ca-certificates
+
 2.官方的建议是使用脚本直接执行安装
-```
-curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
-sudo apt-get install gitlab-ce
-```
+
+    curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
+    sudo apt-get install gitlab-ce
+
 我是直接用下面的方式安装的
 
-```
-wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/trusty/gitlab-ce_10.0.0-ce.0_amd64.deb/download.deb
-sudo dpkg -i gitlab-ce-XXX.deb
-```
-以上是示例，具体版本需要进行替换，在 https://packages.gitlab.com/gitlab/gitlab-ce 中找到适合自己的 GitLab 版本，从 Download 获取到下载地址。
+    wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/trusty/gitlab-ce_10.0.0-ce.0_amd64.deb/download.deb
+    sudo dpkg -i gitlab-ce-XXX.deb
+
+以上是示例，具体版本需要进行替换，在 <https://packages.gitlab.com/gitlab/gitlab-ce> 中找到适合自己的 GitLab 版本，从 Download 获取到下载地址。
 3，安装
-```
-sudo dpkg -i gitlab-ce_10.0.0-ce.0_amd64.deb
-```
+
+    sudo dpkg -i gitlab-ce_10.0.0-ce.0_amd64.deb
+
 使用以上命令进行安装。
 
-打开/etc/gitlab/gitlab.rb,将external_url = 'http://git.example.com'修改为自己的域名地址：http://example.com，默认为80端口，如要使用其他端口后面加上端口号，如：http://127.0.0.1:8080。
+打开/etc/gitlab/gitlab.rb,将external_url = '<http://git.example.com'修改为自己的域名地址：http://example.com，默认为80端口，如要使用其他端口后面加上端口号，如：http://127.0.0.1:8080。>
 
 然后执行：
 
-```
-sudo gitlab-ctl reconfigure
-```
+    sudo gitlab-ctl reconfigure
+
 启动完成后浏览器访问配置好的地址，应该出现重置管理员密码的界面。
 
-
 汉化
-1.下载社区提供的汉化包，在 https://gitlab.com/xhang/gitlab/ 中找到相应的汉化分支。
+1.下载社区提供的汉化包，在 <https://gitlab.com/xhang/gitlab/> 中找到相应的汉化分支。
 
-sudo wget wget -cO gitlab-9.0_zh.tar.gz https://gitlab.com/xhang/gitlab/repository/archive.tar.gz?ref=9-0-stable-zh
+sudo wget wget -cO gitlab-9.0_zh.tar.gz <https://gitlab.com/xhang/gitlab/repository/archive.tar.gz?ref=9-0-stable-zh>
 2.解压包
 
 sudo tar zxvf gitlab-9.0_zh.tar.gz
@@ -48,7 +44,7 @@ sudo gitlab-ctl stop
 sudo tar zcvf /opt/gitlab/embedded/service/gitlab-rails-bak.tar.gz gitlab-rails
 5.将解压后的汉化补丁覆盖原来的
 
-sudo cp -rf gitlab-9-0-stable-zh/* gitlab-rails/
+sudo cp -rf gitlab-9-0-stable-zh/\* gitlab-rails/
 6.启动服务
 
 sudo gitlab-ctl start
@@ -60,13 +56,12 @@ sudo gitlab-ctl reconfigure
 一些界面设置
 进入界面后关掉一些我们可能用不到的设置，在 「管理区域」的设置中进行更改
 
-
 gitlab ssh key 配置
 git客户端生成ssh key，然后配置在gitlab里，而后使用ssh协议进行提交和拉取git远程仓库的代码
 使用如下命令生成ssh公钥和私钥对
-```
-ssh-keygen -t rsa -C 'xxxx@163.com'
-```
+
+    ssh-keygen -t rsa -C 'xxxx@163.com'
+
 一路回车
 然后在用户目录下.ssh 文件下面生成两个文件 id_rsa id_rsa.pub
 id_rsa是私钥，id_rsa.pub是公钥
@@ -85,21 +80,30 @@ ssh-keygen -t rsa -C 'yourEmail2@xx.com' -f ~/.ssh/github-rsa
 在~/.ssh目录下新建名称为config的文件（无后缀名）。用于配置多个不同的host使用不同的ssh key，内容如下：
 
 # gitlab
+
 Host gitlab.com
     HostName gitlab.com
     PreferredAuthentications publickey
     IdentityFile ~/.ssh/gitlab_id-rsa
+
 # github
+
 Host github.com
     HostName github.com
     PreferredAuthentications publickey
     IdentityFile ~/.ssh/github_id-rsa
   ​
+
 # 配置文件参数
+
 # Host : Host可以看作是一个你要识别的模式，对识别的模式，进行配置对应的的主机名和ssh文件
+
 # HostName : 要登录主机的主机名
+
 # User : 登录名
+
 # IdentityFile : 指明上面User对应的identityFile路径
+
 按照上面的步骤分别往gitlab和github上添加生成的公钥gitlab_id-rsa.pub和github_id-rsa.pub
 OK，大功告成，再次执行git命令验证是不是已经不需要再次验证权限了。
 
