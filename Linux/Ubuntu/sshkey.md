@@ -8,3 +8,8 @@ ssh-copy-id 用户名@ip地址  # 上传公钥到服务器
 ssh登录的配置，即/etc/ssh/sshd_config文件，修改为允许root登录，可以执行命令
 
 sudo vim /etc/ssh/sshd_config
+
+PermitRootLogin prohibit-password
+PermitRootLogin yes
+修改完毕后，重启sshd服务
+service sshd restart
