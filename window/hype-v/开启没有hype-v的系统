@@ -1,0 +1,3 @@
+用管理员身份启动CMD，
+运行：bcdedit /copy {current} /d “Windows 8 Without Hyper-V”
+运行：bcdedit /set {0bae1136-38ec-11e9-8611-9ff126450110} hypervisorlaunchtype OFF
