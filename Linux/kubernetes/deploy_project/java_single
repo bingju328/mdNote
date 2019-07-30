@@ -1,0 +1,198 @@
+创建命名空间
+kubectl create namespace my-namespace
+
+1,拉取私有仓库的镜像
+
+kubectl create secret docker-registry mysecret \
+--docker-server=192.168.0.245:8000 \
+--docker-username=study \
+--docker-password=study \
+--docker-email=bingju328@163.com
+
+其中:
+mysecret:  指定密钥的键名称, 可自行定义
+--docker-server:  指定docker仓库地址
+--docker-username:  指定docker仓库账号
+--docker-password:  指定docker仓库密码
+--docker-email:  指定邮件地址(选填)
+
+
+可以看到当前除了默认的密钥, 还有我们刚才生成的. 另外要注意的是, 该密钥只能在对应namespace使用,
+也就是这里的default, 如果需要用到其他namespace, 比如说test, 就需要在生成的时候指定参数 -n test
+查看秘钥
+kubectl get secret
+
+yml文件加入密钥参数
+containers:
+- name: channel
+  image: registry-internal.cn-hangzhou.aliyuncs.com/yin32167/channel:dev-1.0
+ports:
+- containerPort: 8114
+imagePullSecrets:
+- name: regsecret
+
+其中imagePullSecrets是声明拉取镜像时需要指定密钥, mysecret 必须和上面
+生成密钥的键名一致, 另外检查一下pod和密钥是否在同一个namespace, 之后k8s便可以拉取镜像
+
+// ci 里面获取的环境变量需要在 gitlab runner 里面配置
+environment = ["DOCKER_REGISTRY=192.168.0.245:8000",
+"DOCKER_NAMESPACE=order-mq","DOCKER_USERNAME=study","DOCKER_EMAIL=bingju328@163.com",
+"DOCKER_PASSWORD=study","RANCHER_URL=http://172.17.124.44:8080",
+"RANCHER_ACCESS_KEY=AED74D85ACF236097963","RANCHER_SECRET_KEY=K3fPWppUe5J97DCHtimbH1fDLbjAA6P16v4VmF4h","CURRENT_ENV=ci"]
+
+environment = ["DOCKER_REGISTRY=192.168.0.245:8000","DOCKER_NAMESPACE=order-mq","DOCKER_USERNAME=study","DOCKER_PASSWORD=study","DOCKER_EMAIL=bingju328@163.com","CURRENT_ENV=ci"]
+
+
+先删除创建的秘钥
+$ kubectl delete secret mysecret -n default
+复制秘钥到order-mq
+kubectl -n default get secrets/mysecret -o json | jq '.metadata.namespace = "order-test"' | kubectl create -f -
+
+
+
+
+在创建成功后磁盘将被划分为两块，Ceph disk in creation和Ceph Journal
+
+其中ceph.com/rbd不支持fsType选项。默认情况下，RBD将使用镜像格式2和镜像分层特性。可以在values文件中覆盖以下storageclass的默认值：
+
+storageclass:
+  name: ceph-rbd
+  pool: rbd
+  user_id: admin
+  user_secret_name: pvc-ceph-client-key
+  image_format: "2"
+  image_features: layering
+
+安装中需要先运行秘钥创建的pod，再创建使用秘钥的pod，不过可能不按这个顺序，所以若安装中有些pod提示没有秘钥，则需要把没有秘钥的pod手动删除自动启。还有拉取镜像时间比较久，所以你可以提前拉取docker.io/kolla/ubuntu-source-kubernetes-entrypoint:4.0.0镜像
+
+使用下面的命令检查所有Pod是否正常运行。这可能需要几分钟时间：
+
+$ kubectl -n ceph get pods
+1
+注意 因为我们没有用ceph-rgw = enabled或ceph-mds = enabled 给节点打标签（ceph对象存储特性需要ceph-rgw，cephfs特性需要ceph-mds），因此MDS和RGW Pod都处于pending状态，一旦其他Pod都在运行状态，请用如下命令从某个MON节点检查Ceph的集群状态：（注意ceph-mon-xxxx是你自己的ceph-mon的pod的名称）
+
+$ kubectl -n ceph exec -ti ceph-mon-xxxx -c ceph-mon -- ceph -s
+1
+配置一个POD以便从Ceph申请使用一个持久卷
+为~/ceph-overwrite.yaml中定义的k8s用户创建一个密钥环，并将其转换为base64：
+
+进入mon的pod
+$  kubectl -n ceph exec -ti ceph-mon-xxxx -c ceph-mon /bin/bash
+在pod中调用查询秘钥，并转为base64编码
+# ceph auth get-or-create-key client.k8s mon 'allow r' osd 'allow rwx pool=rbd'  | base64
+QVFCLzdPaFoxeUxCRVJBQUVEVGdHcE9YU3BYMVBSdURHUEU0T0E9PQo=
+# exit
+
+编辑ceph namespace中存在的用户secret：
+
+$ kubectl -n ceph edit secrets/pvc-ceph-client-key
+1
+将base64值复制到key位置的值并保存：:
+
+apiVersion: v1
+data:
+  key: QVFCLzdPaFoxeUxCRVJBQUVEVGdHcE9YU3BYMVBSdURHUEU0T0E9PQo=
+kind: Secret
+metadata:
+  creationTimestamp: 2017-10-19T17:34:04Z
+  name: pvc-ceph-client-key
+  namespace: ceph
+  resourceVersion: "8665522"
+  selfLink: /api/v1/namespaces/ceph/secrets/pvc-ceph-client-key
+  uid: b4085944-b4f3-11e7-add7-002590347682
+type: kubernetes.io/rbd
+
+假如我们需要创建一个在default namespace中使用RBD的Pod。我们需要从ceph namespace复制secret到default namespace：
+
+先删除之前创建的
+$ kubectl delete secret pvc-ceph-client-key -n default
+复制秘钥到default命名空间
+$ kubectl -n ceph get secrets/pvc-ceph-client-key -o json | jq '.metadata.namespace = "default"' | kubectl create -f -
+secret "pvc-ceph-client-key" created
+查询秘钥是否正确创建
+$ kubectl get secrets
+ NAME                  TYPE                                  DATA      AGE
+ default-token-r43wl   kubernetes.io/service-account-token   3         61d
+ pvc-ceph-client-key   kubernetes.io/rbd                     1         20s
+
+创建并初始化RBD池：
+
+每个池中不能超过200个，所以创建数目为128，或者64都行。rbd为pool的名称
+$ kubectl -n ceph exec -ti ceph-mon-xxxx -c ceph-mon -- ceph osd pool create rbd 128
+pool 'rbd' created
+$ kubectl -n ceph exec -ti ceph-mon-xxxxx -c ceph-mon -- rbd pool init rbd
+
+重要：重要的 Kubernetes使用RBD内核模块将RBD映射到主机。Luminous需要CRUSH_TUNABLES 5（Jewel）。这些可调参数的最小内核版本是4.5。如果您的内核不支持这些可调参数，请运行ceph osd crush tunables hammer。默认相关参数也可以在value中查询到。
+
+重要：由于RBD映射到主机系统上。主机需要能够解析由kube-dns服务管理的ceph-mon.ceph.svc.cluster.local名称。要获得kube-dns服务的IP地址，运行kubectl -n kube-system get svc/kube-dns。
+
+创建一个PVC：
+
+$ cat pvc-rbd.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: ceph-pvc
+spec:
+  accessModes:
+   - ReadWriteOnce
+  resources:
+    requests:
+       storage: 2Gi
+  storageClassName: ceph-rbd
+$ kubectl create -f pvc-rbd.yaml
+persistentvolumeclaim "ceph-pvc" created
+$ kubectl get pvc
+NAME       STATUS    VOLUME                                     CAPACITY   ACCESSMODES   STORAGECLASS   AGE
+ceph-pvc   Bound     pvc-1c2ada50-b456-11e7-add7-002590347682   20Gi       RWO           ceph-rbd        3s
+
+检查集群上是否已创建RBD：
+
+    $ kubectl -n ceph exec -ti ceph-mon-xxxxx -c ceph-mon -- rbd ls
+    kubernetes-dynamic-pvc-1c2e9442-b456-11e7-9bd2-2a4159ce3915
+
+    $ kubectl -n ceph exec -ti ceph-mon-xxxxx -c ceph-mon -- rbd info kubernetes-dynamic-pvc-1c2e9442-b456-11e7-9bd2-2a4159ce3915
+    rbd image 'kubernetes-dynamic-pvc-1c2e9442-b456-11e7-9bd2-2a4159ce3915':
+        size 20480 MB in 5120 objects
+        order 22 (4096 kB objects)
+        block_name_prefix: rbd_data.10762ae8944a
+        format: 2
+        features: layering
+        flags:
+        create_timestamp: Wed Oct 18 22:45:59 2017
+
+
+或者也可以直接在k8s的dashboard中看到自动创建了pv和pvc
+
+创建一个使用此PVC的Pod：
+
+$ cat pod-with-rbd.yaml
+kind: Pod
+apiVersion: v1
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: busybox
+      image: busybox
+      command:
+        - sleep
+        - "3600"
+      volumeMounts:
+      - mountPath: "/mnt/rbd"
+        name: vol1
+  volumes:
+    - name: vol1
+      persistentVolumeClaim:
+        claimName: ceph-pvc
+
+$ kubectl create -f pod-with-rbd.yaml
+pod "mypod" created
+
+检查Pod：
+
+$ kubectl get pods
+NAME      READY     STATUS    RESTARTS   AGE
+mypod     1/1       Running   0          17s
+$ kubectl exec mypod -- mount | grep rbd
+/dev/rbd0 on /mnt/rbd type ext4 (rw,relatime,stripe=1024,data=ordered)

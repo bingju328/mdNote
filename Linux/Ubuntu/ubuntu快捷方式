@@ -1,0 +1,31 @@
+Ubuntu系统下为IDEA创建启动图标
+默认情况下，ubuntu将自动安装的软件快捷方式保存在/usr/share/applications目录下，如果我们要创建桌面快捷方式，需要在该目录下创建一个名为“idea.desktop”的文件。
+
+在idea.desktop中添加以下内容
+
+复制代码
+[Desktop Entry]
+Name=IdeaIU
+Comment=IdeaIU
+Exec=env JAVA_HOME=/home/ycz/software/jdk1.7.0_79 /home/ycz/software/idea-IU-143.1821.5/bin/idea.sh
+Icon=/home/ycz/software/idea-IU-143.1821.5/bin/idea.png
+Terminal=false
+Type=Application
+Categories=Application;Development;
+复制代码
+
+
+注意：在 Exec 这一行的命令中要先设置 JAVA_HOME，否则不能启动Idea
+
+
+
+[Desktop Entry]   每个desktop文件都以这个标签开始，说明这是一个Desktop Entry文件
+Version = 1.0      标明Desktop Entry的版本（可选）
+Name = IdeaIU    程序名称（必须），这里以创建一个idea的快捷方式为例
+GenericName = IdeaIU       程序通用名称（可选）
+Comment =IdeaIU       程序描述（可选）
+Exec =       程序的启动命令（必选），可以带参数运行
+Icon =     设置快捷方式的图标（可选），当Type为Application，此项有效
+Terminal = false   是否在终端中运行（可选），当Type为Application，此项有效
+Type = Application   desktop的类型（必选），常见值有“Application”和“Link”
+Categories = GNOME;Application;Network; //注明在菜单栏中显示的类别（可选）
