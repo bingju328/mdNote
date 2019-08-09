@@ -10,9 +10,50 @@
 　　　　netmask 255.255.255.0
 　　　　gateway 192.168.1.1
 　　　　iface enp2s0 inet6 auto
-sudo /etc/init.d/networking restart 
+sudo /etc/init.d/networking restart
 ---------------------
-作者：lzhitsh
-来源：CSDN
-原文：https://blog.csdn.net/lzhitwh/article/details/82773335
-版权声明：本文为博主原创文章，转载请附上博文链接！
+
+
+
+Ubuntu 18.04 LTS设置固定ip
+
+最近新装的Ubuntu 18.04 LTS搞起来还是略不习惯啊，相比之前的SUSE和CentOS差别还是比较大的。这不，想要配置个固定IP还搞了大半天。。。
+
+总结一下踩坑过程吧。
+
+系统版本：
+
+root@ubuntu:/# lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 18.04 LTS
+Release:    18.04
+Codename:   bionic
+root@ubuntu:/#
+
+之前的版本网卡配置信息配置在/etc/network/interfaces文件，可以如下配置，
+
+auto ens33
+iface ens33 inet static
+address 192.168.0.111
+netmask 255.255.255.0
+gateway 192.168.0.1
+
+在18.04上也是可以用的，只是要重启才能生效。通过service networking restart无效。
+
+下面介绍一下在18.04上新采用的netplan命令。网卡信息配置在/etc/netplan/01-network-manager-all.yaml文件，需做如下配置，
+
+# Let NetworkManager manage all devices on this system
+network:
+  version: 2
+  # renderer: NetworkManager
+  ethernets:
+          ens33:
+                  addresses: [192.168.0.111/24]
+                  gateway4: 192.168.0.1
+                  nameservers:
+                        addresses: [192.168.0.1]
+然后使用以下命令使配置即时生效，
+
+netplan apply
+以上操作均在root用户下进行，如在普通用户，请自行加上sudo。
