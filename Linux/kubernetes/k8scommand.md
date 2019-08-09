@@ -35,11 +35,7 @@ sudo kubectl edit deployment send-service -n spkitty
 
 sudo kubectl cluster-info
 
-<<<<<<< HEAD
 sudo docker exec -ti <your-container-name> /bin/bash
-=======
-sudo docker exec -ti <your-container-name> /bin/#!/bin/sh
->>>>>>> a5186842ea41853cfc791b0d433aa7f373f5820c
 sudo kubectl exec -ti <your-pod-name> -n <your-namespace>  /bin/bash
 
 ```
