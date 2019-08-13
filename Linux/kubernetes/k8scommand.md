@@ -37,5 +37,10 @@ sudo kubectl cluster-info
 
 sudo docker exec -ti <your-container-name> /bin/bash
 sudo kubectl exec -ti <your-pod-name> -n <your-namespace>  /bin/bash
+sudo kubectl exec -ti <your-pod-name> -n <your-namespace>  /bin/sh
+
+sudo kubectl top pod --all-namespaces
+sudo kubectl top pod -n spkitty
+sudo kubectl top node
 
 ```
