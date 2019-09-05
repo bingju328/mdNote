@@ -43,4 +43,15 @@ sudo kubectl top pod --all-namespaces
 sudo kubectl top pod -n spkitty
 sudo kubectl top node
 
+kubectl -n <namespace> create secret generic jmx-ssl \
+  --from-file=java-app.keystore \
+  --from-file=java-app.truststore
+kubectl get secret
+kubectl get secret -n spkitty
+
+在没有pod 的yaml文件时，强制重启某个pod
+
+kubectl get pod PODNAME -n NAMESPACE -o yaml | kubectl replace --force -f -
+
+
 ```

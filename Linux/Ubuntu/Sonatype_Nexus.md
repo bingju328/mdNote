@@ -9,13 +9,17 @@ nexus3下载部署
 >/usr/nexus3# tar -zxvf nexus-3.15.2-01-unix.tar.gz
 >mv /usr/nexus3/nexus-3.15.2-01 nexus-3
 ```
+
 2,修改nexus的运行用户为root
-内容修改为:run_as_user="root"
-3,修改nexus启动时要使用的jdk版本
-新增如下内容:INSTALL4J_JAVA_HOME_OVERRIDE=/usr/jdk8
 ```
 >vi /usr/nexus3/nexus-3/bin/nexus.rc
 ```
+内容修改为:run_as_user="root"
+3,修改nexus启动时要使用的jdk版本
+```
+>vi /usr/nexus3/nexus-3/bin/nexus
+```
+新增如下内容:INSTALL4J_JAVA_HOME_OVERRIDE=/usr/jdk8
 4,修改nexus默认端口(可选),以及允许远程机器访问
 ```
 >vi usr/nexus3/nexus-3/etc/nexus-default.properties

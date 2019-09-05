@@ -10,7 +10,7 @@ docker stats
 docker exec my-app top -m
 
  有一个Gradle进程正在运行，它报告的RSS（ Resident Set Size ）与我们的Spring Boot应用程序一样大。 看看Dockerfile，很容易看出原因
- ```
+ ```dockerfile
  FROM anapsix/alpine-java:8_jdk
 
 # Create app directory
