@@ -1,0 +1,136 @@
+问题:
+，我得到了滚动和右键单击的手势。 我对三个手势手势非常感兴趣，但似乎没有办法得到这些工作。
+
+我曾尝试过扩展手势 gnome外壳扩展和 touchegg，它们都没有运行。
+
+关于如何获取这些信息？
+
+回答 1:
+我在 (X.org). 18.04上使用了 XPS 15，我已经为我获得了多个。 Kohei Yamada开发了一个名为Fusuma的应用程序，可以在Linux上实现多触摸手势。 如果还没有安装 ruby，它要求你在机器上安装。
+
+按照 github的fusuma 自述文件说明，你可以按照以下步骤操作：
+
+首先检查当前用户是否是输入组的一部分。 你可以通过
+
+复制代码
+
+sudo gpasswd -a $USER input
+
+
+然后注销并重新登录。 现在安装xdotool和libinput工具。
+
+复制代码
+
+sudo apt-get install libinput-tools
+
+sudo apt-get install xdotool
+
+如果你还没有安装 ruby，你现在可以执行以下操作：
+
+复制代码
+
+sudo apt install ruby
+
+
+现在安装 fusuma
+
+复制代码
+
+gem install fusuma
+
+
+决定你的手势
+这基本上是创建一个具有所需配置的.yml 文件。 如果你想要标准手势你可以按照这些指令或者随意调整来获得想要的手势。
+
+转到主目录中的配置文件夹。
+
+复制代码
+
+cd ~/.config
+
+
+现在创建一个名为 fusuma的文件夹
+
+复制代码
+
+mkdir fusuma
+
+
+在那里创建一个名为 config.yml的文件
+
+复制代码
+
+touch config.yml
+
+
+现在你可以使用你最喜欢的文本编辑器来输入这个文件中的内容。
+
+复制代码
+
+nano config.yml
+
+
+如果你使用 GNOME，则复制并粘贴以下指令，这是 18.04中的缺省环境。
+
+复制代码
+
+swipe:
+  3:
+    left:
+      command: 'xdotool key alt+Right'
+    right:
+      command: 'xdotool key alt+Left'
+    up:
+      command: 'xdotool key super'
+    down:
+      command: 'xdotool key super'
+  4:
+    left:
+      command: 'xdotool key ctrl+alt+Down'
+    right:
+      command: 'xdotool key ctrl+alt+Up'
+    up:
+      command: 'xdotool key ctrl+alt+Down'
+    down:
+      command: 'xdotool key ctrl+alt+Up'
+pinch:
+  in:
+    command: 'xdotool key ctrl+plus'
+  out:
+    command: 'xdotool key ctrl+minus'
+threshold:
+  swipe: 0.5
+  pinch: 0.5
+interval:
+  swipe: 0.8
+  pinch: 0.2
+
+请注意，这里配置为你创建的笔势如下所示：
+
+多触摸手势| 动作|
+3 手指- 左侧| 在浏览器| 上运行
+3 手指- 右| 返回浏览器|
+3 个手指- 向上| 显示所有 Windows |
+3 手指- 关闭| 关闭 Exposé ( Esc ) |
+4 手指- 左| 下一个桌面|
+4 手指- 右| 上一个桌面|
+4 个手指- 下一个桌面| 上的|
+4 手指- 向下| 上一个桌面|
+
+在此之后，你可以在终端中运行命令来测试是否已经安装
+
+复制代码
+
+sudo fusuma
+
+
+终端中什么都不会发生。 开始使用你的多触摸手势- swipe触摸你的触摸板。
+
+现在你所要做的就是在启动应用程序中添加Fusuma和它的命令。
+
+希望这有帮助
+
+回答 2:
+Ubuntu 18.04使用Xorg作为默认显示服务器而不是 Wayland。 上述扩展手势扩展目前仅适用于 Wayland。
+
+你需要做的是在重新启动后登录时选择 Wayland。 这个链接显示了相同的过程，但是在( 从Wayland到 Xorg ) 中。
