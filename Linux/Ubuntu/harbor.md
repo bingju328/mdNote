@@ -71,7 +71,7 @@ tar -xvf harbor-online-installer-v1.8.2.tgz
    #更改harbor存储路径，默认是/data
    secretkey_path = /mnt/vdc/harbor_data
    ```
-   
+
 2. 开始安装
 
    ```
@@ -110,7 +110,7 @@ tar -xvf harbor-online-installer-v1.8.2.tgz
            - log
      ```
 
-     
+
 
    - 第二种方式 ： 修改config.yml
 
@@ -153,14 +153,14 @@ Linux，比如Ubuntu
 - 修改启动文件 docker.service,增加Harbor的Ip和Port
 
   ```shell
-  vim /lib/systemd/system/docker.service 
+  vim /lib/systemd/system/docker.service
   #在ExecStart的最后增加：--insecure-registry=198.127.0.1:18071
-  
+
   #重新启动docker：
   #修改docker.service一定要执行systemctl daemon-reload刷新配置
   systemctl daemon-reload
   systemctl restart docker
-  
+
   ```
 
 ####  docker push镜像：
@@ -199,10 +199,6 @@ Linux，比如Ubuntu
 1 端口错了，比如不是默认端口80，而是18071
 
 2 没有在docker启动文件中添加--insecure-registry 信任关系，解决办法在上面  3 修改insecure-registry
-
-
-
-
 
 proxy是registry v2的pull though cache功能。开启了cache的话就无法做push了。registry的官网有这个说明。
 因为我这里是harbor的本地仓库 并且是docker部署的
