@@ -314,6 +314,7 @@ rabbitmqctl change_cluster_node_type {disc|ram}
 
 
 rabbitmqctl forget_cluster_node [--offline]
+rabbitmqctl forget_cluster_node rabbit@rabbit1
 # 表示远程移除一个集群节点。要删除的节点必须脱机，如果没有脱机，需要使用 --offline 参数。当使用 --offline 参数时，rabbitmqctl不会去连接节点，而是暂时变成节点，以便进行变更。这在节点不能正常启动时非常有用。在这种情况下，节点会成为集群元数据的规范来源（例如哪些队列存在）。因此如果可以的话，应该使用此命令在最新的节点上关闭。
 # --offline 参数使节点从脱机节点上移除。使用场景主要是在所有节点脱机，且最后一个节点无法联机时，从而防止整个集群启动。在其他情况不应该使用，否则会导致不一致。
 # 例如 rabbitmqctl -n hare@mcnulty forget_cluster_node  rabbit@stringer

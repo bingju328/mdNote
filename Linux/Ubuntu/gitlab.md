@@ -11,7 +11,8 @@
 
 我是直接用下面的方式安装的
 
-    wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/trusty/gitlab-ce_10.0.0-ce.0_amd64.deb/download.deb
+    <!-- wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/trusty/gitlab-ce_10.0.0-ce.0_amd64.deb/download.deb -->
+    wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ce/packages/debian/stretch/gitlab-ce_12.2.1-ce.0_amd64.deb
     sudo dpkg -i gitlab-ce-XXX.deb
 
 以上是示例，具体版本需要进行替换，在 <https://packages.gitlab.com/gitlab/gitlab-ce> 中找到适合自己的 GitLab 版本，从 Download 获取到下载地址。

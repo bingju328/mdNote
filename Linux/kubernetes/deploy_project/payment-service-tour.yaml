@@ -1,0 +1,115 @@
+echo "
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service-tour
+  namespace: spkitty
+  labels:
+    app: payment-service-tour
+    monitor: 'true'
+spec:
+  ports:
+    - port: 8080
+      name: payment-service-tour
+    - port: 8090
+      name: management-port
+  clusterIP: None
+  selector:
+    app: payment-service-tour
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service-tour
+  namespace: spkitty
+spec:
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-service-tour
+  template:
+    metadata:
+      labels:
+        app: payment-service-tour
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - payment-service-tour
+              weight: 1
+      imagePullSecrets:
+        - name: aliyun
+      containers:
+        - name: payment-service-tour
+          image: registry.cn-beijing.aliyuncs.com/mshoufu/payment-refund-service:b121ab4a
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            periodSeconds: 5
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 5
+            initialDelaySeconds: 180
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            periodSeconds: 5
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 5
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: 0.5
+              memory: 1Gi
+            limits:
+              memory: 1Gi
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "payment-service-tour"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "test,k8s"
+            - name: JAVA_OPTS
+              value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+            - name: SPRING_CLOUD_CONSUL_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: SERVER_PORT
+              value: "8080"
+            - name: MANAGEMENT_SERVER_PORT
+              value: "8090"
+          volumeMounts:
+            - mountPath: /logs
+              name: applog
+              readOnly: false
+          lifecycle:
+            preStop:
+              httpGet: 
+                path: /actuator/shutdown
+                port: 8090
+      volumes:
+        - name: applog
+          hostPath:
+            path: /data/logs
+            type: DirectoryOrCreate
+" | kubectl apply -f -
