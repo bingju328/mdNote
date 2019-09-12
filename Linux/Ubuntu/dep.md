@@ -15,7 +15,7 @@
 dpkg安装deb缺少依赖包的解决方法
 【先贴出解决方案（基于Ubuntu）】：
 
-使用dpkg -i   *.deb 的时候出现依赖没有安装
+使用dpkg -i   * .deb 的时候出现依赖没有安装
 
 使用apt-get -f -y install  解决依赖问题后再执行dpkg安装deb包
 
