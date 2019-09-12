@@ -53,5 +53,6 @@ kubectl get secret -n spkitty
 
 kubectl get pod PODNAME -n NAMESPACE -o yaml | kubectl replace --force -f -
 
-
+#获取资源
+sudo kubectl get ingress gateway -n spkitty -o yaml
 ```
