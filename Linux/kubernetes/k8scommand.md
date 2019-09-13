@@ -55,4 +55,25 @@ kubectl get pod PODNAME -n NAMESPACE -o yaml | kubectl replace --force -f -
 
 #获取资源
 sudo kubectl get ingress gateway -n spkitty -o yaml
+#-w 的意思是 监视这个命令的输出，有新的状态变化立刻输出出来
+sudo kubectl get pod -n kube-system -w 
+
+#扩容
+kubectl get deployment #得到要扩容的deployment Name
+kubectl scale --replicas=3 deployment/nginx-deployment #扩容到3个副本
+
+#暴露一个Service端口 比如niginx-deployment
+kubectl get deployment
+kubectl expose deployment nginx-deployment --port=30000 --target-port=8000
+kubectl get svc -o wide #就会出现了 
+curl 10.97.154.59:30000 #就可以访问了 而且是轮询访问的
+ipvsadm -Ln | grep 10.97.154.59 #能看到IP
+
+#暴露一个外网IP
+kubectl edit svc nginx-deployment
+#修改 type: ClusterIP 为  type: NodePort
+kubectl get svc #查看会多了一个端口 30000:31859/TCP
+netstat -anpt | grep :31859 #会看到有这个端口了
+192.168.0.246:31859 192.168.0.247:31859 就都可以访问了
+
 ```
