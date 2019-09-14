@@ -31,7 +31,7 @@ rolling-update  但 Deployment  支持）
 
 Deployment并不负责Pod的创建。如图：
 
-![](images/deploymentRS.PNG)
+![](images/DeploymentRS.PNG)
 
 比如：有Pod 版本 v1,v1,v1 三个实例。滚动更新v2时：deployment先创建一个RS-1,由RS-1来创建v2Pod , 创建一个v2, 停止一个v1,直到更新完。回滚同理。
 
