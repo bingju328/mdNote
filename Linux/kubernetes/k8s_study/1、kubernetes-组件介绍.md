@@ -25,13 +25,13 @@
 
 ## 三、组件说明
 
-![Borg架构图](images/borg架构图.png)
+![Borg架构图](images/borg架构图.PNG)
 
 BorgMaster： Borg系统的大脑。
 
 Borglet：Borg系统工作结点。
 
-![kubernetes架构图](images/k8s架构图.png)
+![kubernetes架构图](images/k8s架构图.PNG)
 
 Master: scheduler、replication controller、api server
 
@@ -59,7 +59,7 @@ Node: kubelet、kube proxy
 
 推荐在Kubernetes集群中使用Etcd v3 , v2版本已在Kubernetes v1.11中弃用。
 
-![ETCD架构图](images/ETCD架构图.png)
+![ETCD架构图](images/ETCD架构图.PNG)
 
 ETCD采用HTTP Server的形式，即采用Http协议进行**CAS**结构 (Central Authentication Service的缩写，中央认证服务，一种独立开放指令协议) 构建的服务。**kubernetes也是采用这种构建。**
 

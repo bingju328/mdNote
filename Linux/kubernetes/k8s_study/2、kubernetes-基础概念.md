@@ -31,7 +31,7 @@ rolling-update  但 Deployment  支持）
 
 Deployment并不负责Pod的创建。如图：
 
-![](images/deploymentRS.png)
+![](images/deploymentRS.PNG)
 
 比如：有Pod 版本 v1,v1,v1 三个实例。滚动更新v2时：deployment先创建一个RS-1,由RS-1来创建v2Pod , 创建一个v2, 停止一个v1,直到更新完。回滚同理。
 
@@ -45,7 +45,7 @@ Deployment  为 Pod  和 ReplicaSet  提供了一个 声明式定义 (declarativ
 
 **4、HPA （ HorizontalPodAutoScale ）**
 
-![](images/HPA.png)
+![](images/HPA.PNG)
 
 HPA 基于RS 创建出来的，用来平滑的扩展Pod .  比如：HAP中定义：当CPU利用率达到80 以上时，扩容Pod , 最大10 ， 最小2 。当CPU利用率低于80就会自动缩容  最小到2个。 （目前这个功能是bate版本）
 
@@ -100,7 +100,7 @@ Cron Job    管理基于时间的    Job ，即：
 
 **8、服务发现**
 
-![](images/服务发现.png)
+![](images/服务发现.PNG)
 
 Client 访问一组相关的Pod（通过同一个RS创建的或有同一组标签的） , 这些Pod通过Service统一代理。即Service是同过标签来收集相关的Pod的，Service会有自己的IP  Port，Client 访问Service的IP Port , 然后负载到Pod上。
 
@@ -116,7 +116,7 @@ Kubernetes  的网络模型假定了所有 Pod  都在一个可以直接连通�
 
 Flannel  是 CoreOS  团队针对 Kubernetes  设计的一个网络规划服务，简单来说，它的功能是让集群中的不同节点主机创建的 Docker  容器都具有全集群唯一的虚拟 IP 地址。而且它还能在这些 IP  地址之间建立一个覆盖网络（ Overlay Network ），通过这个覆盖网络，将数据包原封不动地传递到目标容器内。
 
-![](images/Flannel网络.png)
+![](images/Flannel网络.PNG)
 
  每个Node上启动一个Flanneld服务的守护进程，这个进程监听一个端口，这个端口就是和其它Node通信用的端口。
 
@@ -148,7 +148,7 @@ Pod  到外网： Pod  向外网发送请求，查找路由表 ,  转发数据�
 
 
 
-![](images/k8s网络.png)
+![](images/k8s网络.PNG)
 
 > kubernetes中有三层网络，Service网络、节点网络、Pod网络 。Service和节点网络是虚拟网络，节点网络是真实的。
 
