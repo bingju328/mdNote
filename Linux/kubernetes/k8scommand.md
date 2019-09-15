@@ -28,6 +28,8 @@ kubectl logs -f pods/monitoring-influxdb-fc8f8d5cd-dbs7d -n kube-system
 kubectl logs --tail 200 -f kube-apiserver -n kube-system |more
 kubectl logs kibana-logging-7445dc9757-pvpcv -n kube-system -f
 kubectl logs --tail 200 -f podname -n jenkins
+#如果一个Pod中有多个容器，需要指定 -c <容器名称>
+kubectl logs myapp-pod -c test
 
 
 kubectl edit deployment nginx
