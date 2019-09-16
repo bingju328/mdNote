@@ -21,7 +21,7 @@
 
 ## 二、知识图谱
 
-[知识图谱点击这里Xmind](files/Kubernetes 结构 .xmind)
+[知识图谱点击这里Xmind](files/Kubernetes结构.xmind)
 
 ## 三、组件说明
 
