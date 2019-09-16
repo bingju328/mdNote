@@ -3,7 +3,7 @@
 &ensp;&ensp;&ensp;&ensp;在写代码的过程中经常会遇到匿名内部类和lambda表达式里面参数都必须用final类型的变量，即使偶而可以不加final也只是这个变量只有在内部类中使用的情况下(这个情况在编译的时候会在class中自动加上final，下面会讲到)。
 &ensp;&ensp;&ensp;&ensp;其实在方法里面或lambda表达式里面都是匿名内部类，实质上都是接口的实现类。
 &ensp;&ensp;&ensp;&ensp;具体看代码，为了更好的说明问题lambda表达式都用内部类来表示，如下：
-```
+```java
 /**
  * @author Administrator
  * @date 2019/2/14
