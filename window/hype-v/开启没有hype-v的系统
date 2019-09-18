@@ -1,3 +1,12 @@
 用管理员身份启动CMD，
 运行：bcdedit /copy {current} /d “Windows 8 Without Hyper-V”
 运行：bcdedit /set {0bae1136-38ec-11e9-8611-9ff126450110} hypervisorlaunchtype OFF
+
+
+
+创建交换机的时候注意事项
+
+在开始屏幕的田字图标上右键单击——选择网络连接，找到以太网（本机网络连接）——右键单击以太网——点击属性——网络——去掉勾选“Hyper-V Extensible Virtual Switch”。
+重新配置[虚拟交换机](https://www.baidu.com/s?wd=虚拟交换机&tn=SE_PcZhidaonwhc_ngpagmjz&rsv_dl=gh_pc_zhidao)。
+注意，你的主机网卡必须打开共享模式。
+
