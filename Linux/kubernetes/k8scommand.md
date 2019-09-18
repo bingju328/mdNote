@@ -32,6 +32,8 @@ kubectl logs kibana-logging-7445dc9757-pvpcv -n kube-system -f
 kubectl logs --tail 200 -f podname -n jenkins
 #如果一个Pod中有多个容器，需要指定 -c <容器名称>
 kubectl logs myapp-pod -c test
+#查看服务下的所有日志
+kubectl logs -f --tail 200 svc/payment-refund-service -n spkitty
 
 
 kubectl edit deployment nginx
@@ -53,9 +55,13 @@ kubectl -n <namespace> create secret generic jmx-ssl \
 kubectl get secret
 kubectl get secret -n spkitty
 
-在没有pod 的yaml文件时，强制重启某个pod
+#在没有pod 的yaml文件时，强制重启某个pod
 
 kubectl get pod PODNAME -n NAMESPACE -o yaml | kubectl replace --force -f -
+
+#重启Pod 删除replicas 然后加回来
+kubectl scale --replicas=2 deployment h5-shop -n spkitty
+kubectl get deployment -n spkitty | grep pay | awk '{print "kubectl scale --replicas=1 deployment "$1" -n spkitty"}'|sh
 
 #获取资源
 sudo kubectl get ingress gateway -n spkitty -o yaml
@@ -85,5 +91,9 @@ kubectl create -f https://kubernetes.io/docs/user-guide/nginx-deployment.yaml --
 #命令的记录 查看（最好还是自己记录一下，这个记录没想象中那么好用）
 kubectl create history .......
 kubectl rollout history deployment/nginx-deployment
+
+#查看redis状态
+helm status redis
+
 
 ```
