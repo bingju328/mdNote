@@ -17,11 +17,13 @@ sudo kubectl get namespaces
 sudo kubectl get svc -n kube-system|grep metrics-server
 
 kubectl get po # 查看目前所有的pod
+kubectl get pod -n spkitty --show-labels #显示Pod的标签
 kubectl get rs # 查看目前所有的replica set
 kubectl get deployment # 查看目前所有的deployment
 kubectl describe po my-nginx # 查看my-nginx pod的详细状态
 kubectl describe rs my-nginx # 查看my-nginx replica set的详细状态
 kubectl describe deployment my-nginx # 查看my-nginx deployment的详细状态
+kubectl delete rs --all #删除所有RS
 
 #查看日志
 kubectl logs -f pods/monitoring-influxdb-fc8f8d5cd-dbs7d -n kube-system
@@ -77,5 +79,11 @@ kubectl edit svc nginx-deployment
 kubectl get svc #查看会多了一个端口 30000:31859/TCP
 netstat -anpt | grep :31859 #会看到有这个端口了
 192.168.0.246:31859 192.168.0.247:31859 就都可以访问了
+
+#命令的记录  --record参数可以记录命令，我们可以很方便的查看每次 revision 的变化
+kubectl create -f https://kubernetes.io/docs/user-guide/nginx-deployment.yaml --record
+#命令的记录 查看（最好还是自己记录一下，这个记录没想象中那么好用）
+kubectl create history .......
+kubectl rollout history deployment/nginx-deployment
 
 ```
